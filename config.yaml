@@ -31,3 +31,17 @@ agents:
     questions_per_quiz: 10
   planner:
     default_hours_per_day: 4
+
+# ── Student Profile ───────────────────────────────────────
+# Edit this section with your school/university details.
+# Agents use this to tailor summaries, quizzes, and solutions.
+profile:
+  school: "Tribhuvan University"
+  program: "BIT"
+  semester: 3
+  exam_style: "theory heavy, 3hr paper"
+  marking_pattern: "steps matter more than final answer"
+  hot_topics: []                 # topics that repeat in exams
+  senior_insights: []            # tips from seniors
+  exam_dates: {}                 # e.g. {"DSA": "2026-04-15"}
+  weak_areas: []                 # auto-updated from feedback
