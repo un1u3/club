@@ -1,1 +1,47 @@
+# ── CLUB .gitignore ───────────────────────────────────────
+
+# Dev log
 whatIdid.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# ChromaDB persistent storage
+folder/.club_memory/
+chromadb_store/
+
+# Output files (generated, not tracked)
+folder/output/*.md
+
+# Chainlit
+.chainlit/
+chainlit.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tesseract temp files
+*.traineddata
