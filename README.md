@@ -1,5 +1,5 @@
 # CLUB — Come Learn Understand Buddy
-![alt text](image.png)
+![alt text](owl-1.png)
 > A local, privacy-first AI study assistant that reads your notes, summarizes them, generates quizzes, solves past-year questions, and builds personalized study plans — all running on your own machine.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
