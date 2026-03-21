@@ -79,7 +79,7 @@ club/
 
 ```bash
 # 1. Clone and enter the project
-git clone <repo-url>
+git clone https://github.com/un1u3/club
 cd club
 
 # 2. Create a virtual environment
