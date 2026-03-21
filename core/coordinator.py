@@ -19,12 +19,11 @@ from typing import TypedDict
 
 from langgraph.graph import StateGraph, END
 
-from agents.summarizer import summarize
-from agents.quizzer import generate_quiz, generate_pyq_style
-from agents.solver import solve
-from agents.planner import build_schedule, generate_briefing
-from core.memory import search as memory_search
-from knowmyschool.profile import load_profile, get_school_context
+# Agent and profile imports are done INSIDE functions to
+# prevent circular imports. coordinator is imported by app.py,
+# which also imports memory and profile — loading all agents
+# at module level would trigger a chain of heavy imports
+# (ollama, chromadb, etc.) before the app is ready.
 
 # ── Constants ─────────────────────────────────────────────
 
@@ -97,6 +96,8 @@ def router_node(state: ClubState) -> dict:
         Dict update with the selected agent name and any
         relevant context from memory.
     """
+    from core.memory import search as memory_search
+
     message_lower = state["user_message"].lower()
 
     selected_agent = DEFAULT_AGENT
@@ -136,6 +137,9 @@ def summarizer_node(state: ClubState) -> dict:
     Returns:
         Dict update with the summary as response.
     """
+    from agents.summarizer import summarize
+    from knowmyschool.profile import load_profile
+
     # Combine memory context with the user's message so the
     # summarizer has relevant material to work with
     input_text = state["user_message"]
@@ -172,6 +176,9 @@ def quizzer_node(state: ClubState) -> dict:
     Returns:
         Dict update with formatted quiz as response.
     """
+    from agents.quizzer import generate_quiz, generate_pyq_style
+    from knowmyschool.profile import get_school_context
+
     message_lower = state["user_message"].lower()
 
     # Detect desired question style from the message
@@ -215,6 +222,9 @@ def solver_node(state: ClubState) -> dict:
     Returns:
         Dict update with formatted solution as response.
     """
+    from agents.solver import solve
+    from knowmyschool.profile import load_profile, get_school_context
+
     profile = load_profile()
     school_context = get_school_context()
 
@@ -248,6 +258,10 @@ def planner_node(state: ClubState) -> dict:
     Returns:
         Dict update with schedule or briefing as response.
     """
+    from agents.planner import build_schedule, generate_briefing
+    from core.memory import search as memory_search
+    from knowmyschool.profile import load_profile
+
     message_lower = state["user_message"].lower()
     profile = load_profile()
 
@@ -349,9 +363,10 @@ def _route_to_agent(state: ClubState) -> str:
 
 # ── Public Interface ──────────────────────────────────────
 
-# Compile the graph once at module load so repeated calls
-# don't rebuild it
-_compiled_graph = _build_graph()
+# Lazy compilation — built on first chat() call, not at
+# import time, to avoid triggering heavy imports before
+# the app is ready
+_compiled_graph = None
 
 
 def chat(user_message: str, history: list | None = None) -> str:
@@ -377,11 +392,17 @@ def chat(user_message: str, history: list | None = None) -> str:
         >>> response = chat("Summarize binary search trees")
         >>> print(response)
     """
+    global _compiled_graph
+
     if history is None:
         history = []
 
     if not user_message.strip():
         return "Please type a message so I can help you study!"
+
+    # Lazy-compile the graph on first call
+    if _compiled_graph is None:
+        _compiled_graph = _build_graph()
 
     initial_state = {
         "user_message": user_message,

@@ -31,6 +31,7 @@ if PROJECT_ROOT not in sys.path:
 
 from core.coordinator import chat as coordinator_chat
 from core.memory import add_document, search as memory_search
+from core.watcher import start_watching, index_existing_files
 from knowmyschool.profile import (
     load_profile,
     save_profile,
@@ -96,10 +97,24 @@ async def on_chat_start():
         profile = load_profile()
 
     # Start the file watcher in a background thread
-    _start_watcher_thread()
+    start_watching(blocking=False)
+
+    # Index any existing files that were added while CLUB
+    # was offline
+    indexed_count = index_existing_files()
 
     # Show the welcome message
     await cl.Message(content=WELCOME_MESSAGE).send()
+
+    # Show indexing status
+    if indexed_count > 0:
+        await cl.Message(
+            content=(
+                f"📄 **CLUB has indexed {indexed_count} "
+                f"document{'s' if indexed_count != 1 else ''}** "
+                "from your study folders."
+            )
+        ).send()
 
     # Show current profile summary
     profile_summary = _format_profile_summary(profile)
@@ -244,87 +259,6 @@ async def _run_setup_wizard():
             )
         ).send()
 
-
-# ── File Watcher ──────────────────────────────────────────
-
-def _start_watcher_thread():
-    """
-    Starts the folder watcher in a background daemon thread.
-
-    The watcher monitors folder/notes/, folder/pyqs/, and
-    folder/images/ for new files. When detected, it reads
-    them via the reader agent and stores them in memory.
-
-    Runs as a daemon so it dies when the main process exits.
-    """
-    try:
-        from watchdog.observers import Observer
-        from watchdog.events import FileSystemEventHandler
-        from agents.reader import read_file
-    except ImportError as error:
-        print(
-            f"CLUB App: watcher dependencies missing — {error}"
-        )
-        return
-
-    class StudyFileHandler(FileSystemEventHandler):
-        """Handles new file events in the study folders."""
-
-        def on_created(self, event):
-            """Processes a newly created file."""
-            if event.is_directory:
-                return
-
-            file_path = event.src_path
-            file_name = os.path.basename(file_path)
-
-            # Skip hidden files and temp files
-            if file_name.startswith(".") or file_name.startswith("~"):
-                return
-
-            print(f"CLUB Watcher: new file detected — {file_path}")
-
-            try:
-                extracted_text = read_file(file_path)
-                if extracted_text:
-                    add_document(
-                        doc_id=file_name,
-                        text=extracted_text,
-                        metadata={
-                            "source": file_path,
-                            "type": "auto_ingested",
-                        },
-                    )
-                    print(
-                        f"CLUB Watcher: ingested {file_name} "
-                        "into memory"
-                    )
-            except Exception as error:
-                print(
-                    f"CLUB Watcher: failed to process "
-                    f"{file_name} — {error}"
-                )
-
-    # Watch all study-related folders
-    folders_to_watch = [
-        os.path.join(PROJECT_ROOT, "folder", "notes"),
-        os.path.join(PROJECT_ROOT, "folder", "pyqs"),
-        os.path.join(PROJECT_ROOT, "folder", "images"),
-    ]
-
-    handler = StudyFileHandler()
-    observer = Observer()
-
-    for folder_path in folders_to_watch:
-        if os.path.exists(folder_path):
-            observer.schedule(
-                handler, folder_path, recursive=False
-            )
-
-    # Daemon thread so it stops when chainlit stops
-    observer.daemon = True
-    observer.start()
-    print("CLUB Watcher: monitoring study folders...")
 
 
 # ── Helpers ───────────────────────────────────────────────
