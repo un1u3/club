@@ -1,0 +1,23 @@
+# ── CLUB Dependencies ─────────────────────────────────────
+# Install with: pip install -r requirements.txt
+
+# ── LLM & Agent Orchestration ────────────────────────────
+ollama>=0.4.7               # local LLM client for llama3
+langgraph>=0.2.60           # multi-agent orchestration
+langchain>=0.3.14           # LLM framework core
+langchain-ollama>=0.3.0     # langchain <-> ollama bridge
+
+# ── Vector Memory ────────────────────────────────────────
+chromadb>=0.6.3             # local vector database
+
+# ── Chat Interface ───────────────────────────────────────
+chainlit>=2.2.1             # web-based chat UI
+
+# ── Document Processing ──────────────────────────────────
+pypdf>=5.4.0                # PDF text extraction
+pillow>=11.1.0              # image handling
+pytesseract>=0.3.13         # OCR for handwritten notes
+
+# ── Utilities ────────────────────────────────────────────
+pyyaml>=6.0.2               # config file parsing
+watchdog>=6.0.0             # filesystem monitoring

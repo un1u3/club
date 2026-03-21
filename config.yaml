@@ -1,0 +1,33 @@
+# ── CLUB Configuration ─────────────────────────────────────
+# Central config for the CLUB study assistant.
+# Edit this file to change models, paths, and behavior.
+
+# ── LLM Settings ──────────────────────────────────────────
+llm:
+  provider: ollama
+  model: llama3
+  base_url: "http://localhost:11434"
+
+# ── Memory Settings ───────────────────────────────────────
+memory:
+  provider: chromadb
+  persist_directory: "./chromadb_store"
+  collection_name: "club_memory"
+
+# ── Folder Paths ──────────────────────────────────────────
+folders:
+  notes: "folder/notes/"
+  pyqs: "folder/pyqs/"
+  images: "folder/images/"
+  youtube: "folder/youtube/"
+  output: "folder/output/"
+
+# ── Agent Settings ────────────────────────────────────────
+agents:
+  summarizer:
+    max_summary_ratio: 0.3       # max 30% of input length
+  quizzer:
+    default_difficulty: "medium"
+    questions_per_quiz: 10
+  planner:
+    default_hours_per_day: 4
