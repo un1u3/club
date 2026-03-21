@@ -26,3 +26,4 @@ youtube-transcript-api>=0.6.3  # fetch YouTube video transcripts
 # ── Utilities ────────────────────────────────────────────
 pyyaml>=6.0.2               # config file parsing
 watchdog>=6.0.0             # filesystem monitoring
+APScheduler>=3.10.4         # daily briefing scheduler
