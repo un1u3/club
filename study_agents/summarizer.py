@@ -18,9 +18,13 @@ import time
 
 import ollama
 
-# ── Constants ─────────────────────────────────────────────
+from core.constants import (
+    OLLAMA_MODEL,
+    OLLAMA_RETRY_ATTEMPTS,
+    OLLAMA_RETRY_DELAY,
+)
 
-MODEL_NAME = "llama3"
+# ── Constants ─────────────────────────────────────────────
 
 # Chunk size tuned to stay well within llama3's 4096 token
 # context window — 2000 chars is roughly 500 tokens, leaving
@@ -30,8 +34,8 @@ SUMMARIZER_CHUNK_SIZE = 2000
 # Overlap so chunks don't cut mid-sentence
 SUMMARIZER_CHUNK_OVERLAP = 200
 
-MAX_RETRIES = 3               # attempts before giving up
-RETRY_DELAY_SECONDS = 2       # wait between retry attempts
+MAX_RETRIES = OLLAMA_RETRY_ATTEMPTS
+RETRY_DELAY_SECONDS = OLLAMA_RETRY_DELAY
 
 # ── System Prompts ────────────────────────────────────────
 
@@ -151,7 +155,7 @@ def _call_ollama(system_prompt: str, user_text: str) -> str:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = ollama.chat(
-                model=MODEL_NAME,
+                model=OLLAMA_MODEL,
                 messages=[
                     {
                         "role": "system",

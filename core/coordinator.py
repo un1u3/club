@@ -15,7 +15,17 @@ License: MIT
 """
 
 import json
+import os
+import sys
 from typing import TypedDict
+
+# Ensure project root is in sys.path for sibling imports
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..")
+)
+if PROJECT_ROOT in sys.path:
+    sys.path.remove(PROJECT_ROOT)
+sys.path.insert(0, PROJECT_ROOT)
 
 from langgraph.graph import StateGraph, END
 
@@ -137,7 +147,7 @@ def summarizer_node(state: ClubState) -> dict:
     Returns:
         Dict update with the summary as response.
     """
-    from agents.summarizer import summarize
+    from study_agents.summarizer import summarize
     from knowmyschool.profile import load_profile
 
     # Combine memory context with the user's message so the
@@ -176,7 +186,7 @@ def quizzer_node(state: ClubState) -> dict:
     Returns:
         Dict update with formatted quiz as response.
     """
-    from agents.quizzer import generate_quiz, generate_pyq_style
+    from study_agents.quizzer import generate_quiz, generate_pyq_style
     from knowmyschool.profile import get_school_context
 
     message_lower = state["user_message"].lower()
@@ -222,7 +232,7 @@ def solver_node(state: ClubState) -> dict:
     Returns:
         Dict update with formatted solution as response.
     """
-    from agents.solver import solve
+    from study_agents.solver import solve
     from knowmyschool.profile import load_profile, get_school_context
 
     profile = load_profile()
@@ -258,7 +268,7 @@ def planner_node(state: ClubState) -> dict:
     Returns:
         Dict update with schedule or briefing as response.
     """
-    from agents.planner import build_schedule, generate_briefing
+    from study_agents.planner import build_schedule, generate_briefing
     from core.memory import search as memory_search
     from knowmyschool.profile import load_profile
 
@@ -417,6 +427,8 @@ def chat(user_message: str, history: list | None = None) -> str:
         return final_state.get("response", "No response generated.")
 
     except Exception as error:
+        import traceback
+        traceback.print_exc()
         print(f"CLUB Coordinator: pipeline error — {error}")
         return (
             "Something went wrong in the pipeline. "

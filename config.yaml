@@ -1,47 +1,34 @@
-# ── CLUB Configuration ─────────────────────────────────────
-# Central config for the CLUB study assistant.
-# Edit this file to change models, paths, and behavior.
-
-# ── LLM Settings ──────────────────────────────────────────
 llm:
   provider: ollama
-  model: llama3
-  base_url: "http://localhost:11434"
-
-# ── Memory Settings ───────────────────────────────────────
+  model: llama3:latest
+  base_url: http://localhost:11434
 memory:
   provider: chromadb
-  persist_directory: "./chromadb_store"
-  collection_name: "club_memory"
-
-# ── Folder Paths ──────────────────────────────────────────
+  persist_directory: ./chromadb_store
+  collection_name: club_memory
 folders:
-  notes: "folder/notes/"
-  pyqs: "folder/pyqs/"
-  images: "folder/images/"
-  youtube: "folder/youtube/"
-  output: "folder/output/"
-
-# ── Agent Settings ────────────────────────────────────────
+  notes: folder/notes/
+  pyqs: folder/pyqs/
+  images: folder/images/
+  youtube: folder/youtube/
+  output: folder/output/
 agents:
   summarizer:
-    max_summary_ratio: 0.3       # max 30% of input length
+    max_summary_ratio: 0.3
   quizzer:
-    default_difficulty: "medium"
+    default_difficulty: medium
     questions_per_quiz: 10
   planner:
     default_hours_per_day: 4
-
-# ── Student Profile ───────────────────────────────────────
-# Edit this section with your school/university details.
-# Agents use this to tailor summaries, quizzes, and solutions.
 profile:
-  school: "Tribhuvan University"
-  program: "BIT"
+  school: TU
+  program: BIT
   semester: 3
-  exam_style: "theory heavy, 3hr paper"
-  marking_pattern: "steps matter more than final answer"
-  hot_topics: []                 # topics that repeat in exams
-  senior_insights: []            # tips from seniors
-  exam_dates: {}                 # e.g. {"DSA": "2026-04-15"}
-  weak_areas: []                 # auto-updated from feedback
+  exam_style: theory heavy, 3hr paper
+  marking_pattern: steps matter more than final answer
+  hot_topics: []
+  senior_insights: []
+  exam_dates:
+    DSA: '2026-04-15'
+  weak_areas:
+  - trees

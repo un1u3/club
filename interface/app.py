@@ -26,8 +26,13 @@ import chainlit as cl
 PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..")
 )
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+
+# Force project root to the top of sys.path so sibling packages
+# like 'agents' are always findable, even if Chainlit changes
+# the working directory.
+if PROJECT_ROOT in sys.path:
+    sys.path.remove(PROJECT_ROOT)
+sys.path.insert(0, PROJECT_ROOT)
 
 from core.coordinator import chat as coordinator_chat
 from core.memory import add_document, search as memory_search
@@ -47,7 +52,7 @@ SETUP_QUESTION_TIMEOUT = 120
 WELCOME_MESSAGE = """
 ## 🎓 Welcome to CLUB!
 
-**Continuous Learning Understanding Bots** — your local AI study assistant.
+**Come Learn Understand Buddy** — your local AI study assistant.
 
 📂 **CLUB is watching your `folder/` directory.**
 Drop your notes, PDFs, images, or past papers there and I'll process them automatically.
@@ -95,6 +100,14 @@ async def on_chat_start():
         await _run_setup_wizard()
         # Reload after setup
         profile = load_profile()
+
+    # Re-inject PROJECT_ROOT inside the async handler.
+    # Chainlit's async workers may not inherit sys.path changes
+    # made at module level — this guarantees local packages are
+    # always importable when the handler runs.
+    import sys as _sys
+    if PROJECT_ROOT not in _sys.path:
+        _sys.path.insert(0, PROJECT_ROOT)
 
     # Start the file watcher in a background thread
     start_watching(blocking=False)

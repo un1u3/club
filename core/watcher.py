@@ -15,7 +15,17 @@ License: MIT
 """
 
 import os
+import sys
 import time
+
+# Ensure project root is always on sys.path — Chainlit's async
+# workers can run in a context where app.py's sys.path edits
+# are not visible. This guard ensures study_agents and other
+# local packages are always importable.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_THIS_DIR, ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
 # ── Constants ─────────────────────────────────────────────
 
@@ -119,7 +129,7 @@ def index_existing_files() -> int:
         >>> count = index_existing_files()
         >>> print(f"Indexed {count} files")
     """
-    from agents.reader import read_file
+    from study_agents.reader import read_file
     from core.memory import add_document, search
 
     indexed_count = 0
@@ -235,7 +245,7 @@ class _StudyFileHandler:
         time.sleep(0.5)
 
         try:
-            from agents.reader import read_file
+            from study_agents.reader import read_file
             from core.memory import add_document
 
             extracted_text = read_file(file_path)

@@ -6,7 +6,7 @@ Designed for past-year questions and student-submitted problems,
 providing structured solutions with common mistakes and practice tips.
 
 Example:
-    >>> from agents.solver import solve
+    >>> from study_agents.solver import solve
     >>> result = solve("Explain BFS traversal with an example.")
     >>> print(result["steps"][0])
 
@@ -20,12 +20,16 @@ import time
 
 import ollama
 
+from core.constants import (
+    OLLAMA_MODEL,
+    OLLAMA_RETRY_ATTEMPTS,
+    OLLAMA_RETRY_DELAY,
+)
+
 # ── Constants ─────────────────────────────────────────────
 
-MODEL_NAME = "llama3"
-
-MAX_RETRIES = 3              # attempts for LLM call
-RETRY_DELAY_SECONDS = 2      # wait between retries
+MAX_RETRIES = OLLAMA_RETRY_ATTEMPTS
+RETRY_DELAY_SECONDS = OLLAMA_RETRY_DELAY
 
 # ── System Prompts ────────────────────────────────────────
 
@@ -169,7 +173,7 @@ def _call_ollama(system_prompt: str, user_text: str) -> str:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = ollama.chat(
-                model=MODEL_NAME,
+                model=OLLAMA_MODEL,
                 messages=[
                     {
                         "role": "system",

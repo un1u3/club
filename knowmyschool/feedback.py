@@ -20,14 +20,18 @@ import time
 
 import ollama
 
+from core.constants import (
+    OLLAMA_MODEL,
+    OLLAMA_RETRY_ATTEMPTS,
+    OLLAMA_RETRY_DELAY,
+)
+
 from knowmyschool.profile import get_school_context, add_weak_areas
 
 # ── Constants ─────────────────────────────────────────────
 
-MODEL_NAME = "llama3"
-
-MAX_RETRIES = 3              # attempts for LLM call
-RETRY_DELAY_SECONDS = 2      # wait between retries
+MAX_RETRIES = OLLAMA_RETRY_ATTEMPTS
+RETRY_DELAY_SECONDS = OLLAMA_RETRY_DELAY
 
 # ── System Prompt ─────────────────────────────────────────
 
@@ -220,7 +224,7 @@ def _call_ollama(system_prompt: str, user_text: str) -> str:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = ollama.chat(
-                model=MODEL_NAME,
+                model=OLLAMA_MODEL,
                 messages=[
                     {
                         "role": "system",

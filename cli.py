@@ -112,9 +112,21 @@ def cmd_start():
         sys.exit(1)
 
     try:
+        # Set PYTHONPATH so all Chainlit workers (including reloaded
+        # ones) can find local packages like study_agents and core.
+        env = os.environ.copy()
+        existing_pythonpath = env.get("PYTHONPATH", "")
+        if PROJECT_ROOT not in existing_pythonpath:
+            env["PYTHONPATH"] = (
+                PROJECT_ROOT + os.pathsep + existing_pythonpath
+                if existing_pythonpath
+                else PROJECT_ROOT
+            )
+
         subprocess.run(
-            ["chainlit", "run", app_path, "--host", "0.0.0.0"],
+            [sys.executable, "-m", "chainlit", "run", app_path, "--host", "0.0.0.0"],
             cwd=PROJECT_ROOT,
+            env=env,
         )
     except FileNotFoundError:
         print(
@@ -143,7 +155,7 @@ def cmd_briefing():
     try:
         from knowmyschool.profile import load_profile
         from core.memory import search as memory_search
-        from agents.planner import (
+        from study_agents.planner import (
             generate_briefing,
             _save_briefing,
         )
@@ -204,7 +216,7 @@ def _create_default_config(config_path: str) -> None:
 # ── LLM Settings ──────────────────────────────────────────
 llm:
   provider: ollama
-  model: llama3
+  model: llama3:latest
   base_url: "http://localhost:11434"
 
 # ── Memory Settings ───────────────────────────────────────

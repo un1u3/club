@@ -13,7 +13,7 @@ Supported formats:
     - YouTube links   → youtube-transcript-api
 
 Example:
-    >>> from agents.reader import read_file
+    >>> from study_agents.reader import read_file
     >>> text = read_file("folder/notes/os_chapter5.pdf")
     >>> print(text[:200])
 
